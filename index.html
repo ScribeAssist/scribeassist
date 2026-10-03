@@ -93,7 +93,7 @@
   <section class="tool-section" id="tool">
     <div class="wrap">
       <h2>Try it</h2>
-      <p class="section-lede measure">This runs for real. Pick a letter type, enter the few anonymous findings, and generate a draft.</p>
+      <p class="section-lede measure">This runs for real. Pick a letter type, enter a few fictional findings, and generate a draft.</p>
 
       <div class="tool-grid">
         <form id="generate-form" novalidate>
@@ -105,12 +105,12 @@
           </div>
 
           <div class="field">
-            <label for="patient-info">Patient details (Preferred butoptional)</label>
-            <input type="text" id="patient-info" placeholder="e.g. 68-year-old woman — Anonymous details only" />
+            <label for="patient-info">Patient details (optional)</label>
+            <input type="text" id="patient-info" placeholder="e.g. 68-year-old woman — fictional details only" />
           </div>
 
           <div class="field">
-            <label for="recipient">Recipient / context (Preferred but optional)</label>
+            <label for="recipient">Recipient / context (optional)</label>
             <input type="text" id="recipient" placeholder="e.g. patient's GP practice" />
           </div>
 
@@ -123,15 +123,26 @@ Mobilising independently, sats 97% on air
 Plan: discharge today, GP review in 1 week"></textarea>
           </div>
 
-          <div class="mode-toggle">
-            <input type="checkbox" id="ai-mode-toggle" />
-            <label for="ai-mode-toggle" style="margin:0;">Use Claude for this draft (AI mode)</label>
+          <div class="field mode-select-field">
+            <label for="mode-select">Write the draft with</label>
+            <select id="mode-select">
+              <option value="template">Template (instant, no AI)</option>
+              <option value="webllm">Free on-device AI (downloads a model once)</option>
+              <option value="claude">Claude (needs your own API key)</option>
+            </select>
+          </div>
+
+          <div class="hint mode-note" id="webllm-note" hidden>
+            Runs a small AI model inside your browser, so nothing you type leaves your device. The first time, it downloads roughly 1 to 2 GB, so use Wi-Fi. It needs a recent browser with WebGPU (current Chrome or Edge, or Safari on recent iPads and Macs). Small models make more mistakes than Claude, so check every line.
+          </div>
+          <div class="progress" id="webllm-progress" hidden>
+            <div class="progress-bar" id="webllm-bar"></div>
           </div>
 
           <div class="field api-key-field" id="api-key-wrap">
             <label for="api-key">Claude API key</label>
             <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" />
-            <p class="hint">Stays in your browser and is sent straight to Anthropic to generate this one draft. It isn't saved anywhere and is forgotten when you close or refresh the page. Get a key at <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>. Leave this off to use the built-in template mode instead.</p>
+            <p class="hint">Stays in your browser and is sent straight to Anthropic to generate this one draft. It isn't saved anywhere and is forgotten when you close or refresh the page. Get a key at <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
           </div>
 
           <div class="generate-row">
@@ -175,21 +186,21 @@ Plan: discharge today, GP review in 1 week"></textarea>
           <div class="bar"></div>
           <div>
             <h3>No real patient data</h3>
-            <p>This demo isn't connected to any clinical system. It should only ever be given fully anonymised details — nothing that could identify the patient.</p>
+            <p>This demo isn't connected to any clinical system. It should only ever be given fictional or fully anonymised details — nothing that could identify a real person.</p>
           </div>
         </div>
         <div class="safety-item">
           <div class="bar"></div>
           <div>
             <h3>It says what it doesn't know</h3>
-            <p>In AI mode, the model is instructed to mark missing information explicitly — for example <code>[not documented]</code> — rather than invent findings. It's still a prototype built on a general-purpose model, not a clinically validated product.</p>
+            <p>In both AI modes, the model is instructed to mark missing information explicitly — for example <code>[not documented]</code> — rather than invent findings. It's still a prototype built on a general-purpose model, not a clinically validated product.</p>
           </div>
         </div>
         <div class="safety-item">
           <div class="bar"></div>
           <div>
             <h3>AI mode uses your own key</h3>
-            <p>Turning on AI mode sends your Claude API key, with your typed findings, directly from your browser to Anthropic. ScribeAssist has no server of its own, so nothing is stored or logged by this site.</p>
+            <p>ScribeAssist has no server of its own, so this site stores and logs nothing. On-device AI keeps your text in your browser. Claude mode sends your API key and typed findings directly from your browser to Anthropic.</p>
           </div>
         </div>
       </div>
@@ -204,7 +215,7 @@ Plan: discharge today, GP review in 1 week"></textarea>
         <div class="about-body">
           <p>I'm Suriya, a student in the UK working toward a medicine application, with neurosurgery as the long-term goal.</p>
           <p>Documentation is unglamorous compared with, say, diagnosis or imaging — but it's where a large share of a doctor's actual day goes, and it's a problem AI can help with without touching diagnosis or treatment decisions. That combination is what made it worth building first.</p>
-          <p>It sits alongside two other projects I've been working on in parallel: a systematic review of surgical timing in acute traumatic spinal cord injury, and an independent comparison of machine-learning approaches to motor decoding in brain–computer interfaces for people with chronic spinal cord injury. Any advise,improvement and internship availabilityshould be sent to cookingselling123@gmail.com .</p>
+          <p>It sits alongside two other projects I've been working on in parallel: a systematic review of surgical timing in acute traumatic spinal cord injury, and an independent comparison of machine-learning approaches to motor decoding in brain–computer interfaces for people with chronic spinal cord injury.</p>
         </div>
       </div>
     </div>
@@ -214,7 +225,7 @@ Plan: discharge today, GP review in 1 week"></textarea>
 
 <footer class="site-footer">
   <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
-    <span>ScribeAssist — a prototype, not a certified medical device.</span>
+    <span>ScribeAssist — a student-built prototype, not a certified medical device.</span>
     <span>Built by Suriya, 2026.</span>
   </div>
 </footer>

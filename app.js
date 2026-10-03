@@ -68,20 +68,30 @@
   });
 
   // ---------------------------------------------------------------
-  // AI mode toggle
+  // Draft mode selector: template, on-device AI (WebLLM), or Claude
   // ---------------------------------------------------------------
-  var aiToggle = document.getElementById('ai-mode-toggle');
+  var modeSelect = document.getElementById('mode-select');
   var apiKeyWrap = document.getElementById('api-key-wrap');
+  var webllmNote = document.getElementById('webllm-note');
+  var progressWrap = document.getElementById('webllm-progress');
+  var progressBar = document.getElementById('webllm-bar');
   var modePill = document.getElementById('mode-pill');
 
+  var PILL_TEXT = {
+    template: 'Template mode',
+    webllm: 'On-device AI (small model)',
+    claude: 'AI mode (Claude)'
+  };
+
   function syncModeUi() {
-    var on = aiToggle.checked;
-    apiKeyWrap.classList.toggle('visible', on);
-    modePill.textContent = on ? 'AI mode (Claude)' : 'Template mode';
-    modePill.classList.toggle('ai', on);
+    var mode = modeSelect.value;
+    apiKeyWrap.classList.toggle('visible', mode === 'claude');
+    webllmNote.hidden = mode !== 'webllm';
+    modePill.textContent = PILL_TEXT[mode];
+    modePill.classList.toggle('ai', mode !== 'template');
   }
 
-  aiToggle.addEventListener('change', syncModeUi);
+  modeSelect.addEventListener('change', syncModeUi);
   syncModeUi();
 
   // ---------------------------------------------------------------
@@ -147,6 +157,106 @@
   }
 
   // ---------------------------------------------------------------
+  // Prompts shared by both AI modes
+  // ---------------------------------------------------------------
+  function buildSystemPrompt(type) {
+    var label = LETTER_LABELS[type] || 'clinical letter';
+    return (
+      'You are a careful clinical documentation assistant helping a doctor draft a ' + label + '.\n\n' +
+      'Rules:\n' +
+      '- Use only the information given to you. Never invent clinical findings, results, names, dates, or history that were not provided.\n' +
+      '- If information needed for a standard section is missing, write "[not documented]" rather than guessing.\n' +
+      '- Use clear, professional, standard UK clinical letter style and structure.\n' +
+      '- This draft will always be reviewed, edited, and approved by a doctor before use. You are producing a first draft only, not a final clinical document.\n' +
+      '- Do not include any real patient-identifiable information beyond what is explicitly given. This is a demonstration tool and inputs should already be fictional or anonymised.\n' +
+      '- Output only the letter text, with no preamble like "Here is the letter" and no markdown formatting.'
+    );
+  }
+
+  function buildUserPrompt(type, patientInfo, recipient, bullets) {
+    var label = LETTER_LABELS[type] || 'clinical letter';
+    return [
+      'Draft a ' + label + '.',
+      patientInfo ? 'Patient details: ' + patientInfo : '',
+      recipient ? 'Addressed to / recipient context: ' + recipient : '',
+      'Clinical bullet points to incorporate:',
+      bullets
+    ].filter(Boolean).join('\n\n');
+  }
+
+  // ---------------------------------------------------------------
+  // On-device AI (WebLLM). The library and model are only downloaded
+  // if the visitor picks this mode, and are cached by the browser so
+  // later drafts start quickly. Model names are checked against the
+  // library's own list at run time, in order of preference.
+  // ---------------------------------------------------------------
+  var WEBLLM_URL = 'https://esm.run/@mlc-ai/web-llm';
+  var WEBLLM_MODEL_PREFERENCE = [
+    'Llama-3.2-3B-Instruct-q4f16_1-MLC',
+    'Qwen2.5-3B-Instruct-q4f16_1-MLC',
+    'Llama-3.2-1B-Instruct-q4f16_1-MLC'
+  ];
+  var webllmEnginePromise = null;
+
+  function setProgress(fraction) {
+    progressWrap.hidden = false;
+    progressBar.style.width = Math.round(Math.max(0, Math.min(1, fraction)) * 100) + '%';
+  }
+
+  function getWebllmEngine() {
+    if (webllmEnginePromise) return webllmEnginePromise;
+
+    webllmEnginePromise = (async function () {
+      if (!('gpu' in navigator)) {
+        throw new Error('This browser does not support WebGPU, which on-device AI needs. Try current Chrome or Edge on a computer, or choose Template or Claude instead.');
+      }
+      statusEl.textContent = 'Loading the AI library…';
+      var webllm;
+      try {
+        webllm = await import(WEBLLM_URL);
+      } catch (e) {
+        throw new Error('Could not download the AI library. Check your internet connection and try again.');
+      }
+
+      var available = (webllm.prebuiltAppConfig && webllm.prebuiltAppConfig.model_list || [])
+        .map(function (m) { return m.model_id; });
+      var modelId = WEBLLM_MODEL_PREFERENCE.filter(function (id) {
+        return available.indexOf(id) !== -1;
+      })[0];
+      if (!modelId) {
+        throw new Error('None of the expected models are available in this version of WebLLM.');
+      }
+
+      statusEl.textContent = 'Downloading the model (first time only)…';
+      return webllm.CreateMLCEngine(modelId, {
+        initProgressCallback: function (report) {
+          setProgress(report.progress || 0);
+          if (report.text) statusEl.textContent = report.text;
+        }
+      });
+    })();
+
+    // If loading fails, let the visitor try again instead of staying stuck.
+    webllmEnginePromise.catch(function () { webllmEnginePromise = null; });
+    return webllmEnginePromise;
+  }
+
+  async function generateWithWebllm(type, patientInfo, recipient, bullets) {
+    var engine = await getWebllmEngine();
+    progressWrap.hidden = true;
+    statusEl.textContent = 'Writing the draft…';
+    var reply = await engine.chat.completions.create({
+      messages: [
+        { role: 'system', content: buildSystemPrompt(type) },
+        { role: 'user', content: buildUserPrompt(type, patientInfo, recipient, bullets) }
+      ],
+      temperature: 0.2,
+      max_tokens: 900
+    });
+    return reply.choices[0].message.content;
+  }
+
+  // ---------------------------------------------------------------
   // Form handling
   // ---------------------------------------------------------------
   var form = document.getElementById('generate-form');
@@ -188,37 +298,36 @@
       return;
     }
 
-    if (!aiToggle.checked) {
-      var letter = templateLetter(currentType, patientInfo, recipient, bullets);
-      setOutput(letter);
+    var mode = modeSelect.value;
+
+    if (mode === 'template') {
+      setOutput(templateLetter(currentType, patientInfo, recipient, bullets));
+      return;
+    }
+
+    if (mode === 'webllm') {
+      setBusy(true, 'Starting on-device AI…');
+      generateWithWebllm(currentType, patientInfo, recipient, bullets)
+        .then(function (text) {
+          setBusy(false);
+          progressWrap.hidden = true;
+          setOutput(text);
+        })
+        .catch(function (err) {
+          setBusy(false);
+          progressWrap.hidden = true;
+          showError((err && err.message) || 'On-device AI could not start. Try Template or Claude instead.');
+        });
       return;
     }
 
     var apiKey = document.getElementById('api-key').value.trim();
     if (!apiKey) {
-      showError('Enter a Claude API key, or turn off AI mode to use the template instead.');
+      showError('Enter a Claude API key, or choose Template or on-device AI instead.');
       return;
     }
 
     setBusy(true, 'Asking Claude…');
-
-    var label = LETTER_LABELS[currentType] || 'clinical letter';
-    var systemPrompt =
-      'You are a careful clinical documentation assistant helping a doctor draft a ' + label + '.\n\n' +
-      'Rules:\n' +
-      '- Use only the information given to you. Never invent clinical findings, results, names, dates, or history that were not provided.\n' +
-      '- If information needed for a standard section is missing, write "[not documented]" rather than guessing.\n' +
-      '- Use clear, professional, standard UK clinical letter style and structure.\n' +
-      '- This draft will always be reviewed, edited, and approved by a doctor before use. You are producing a first draft only, not a final clinical document.\n' +
-      '- Do not include any real patient-identifiable information beyond what is explicitly given. This is a demonstration tool and inputs should already be fictional or anonymised.\n' +
-      '- Output only the letter text, with no preamble like "Here is the letter" and no markdown formatting.';
-    var userPrompt = [
-      'Draft a ' + label + '.',
-      patientInfo ? 'Patient details: ' + patientInfo : '',
-      recipient ? 'Addressed to / recipient context: ' + recipient : '',
-      'Clinical bullet points to incorporate:',
-      bullets
-    ].filter(Boolean).join('\n\n');
 
     fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -231,8 +340,8 @@
       body: JSON.stringify({
         model: 'claude-sonnet-5',
         max_tokens: 1024,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }]
+        system: buildSystemPrompt(currentType),
+        messages: [{ role: 'user', content: buildUserPrompt(currentType, patientInfo, recipient, bullets) }]
       })
     })
       .then(function (res) {
