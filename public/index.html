@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ScribeAssist — draft clinical letters from your notes</title>
+<meta name="description" content="A prototype tool that turns a clinician's bullet-point findings into a structured first draft of a discharge summary, referral, or clinic letter." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="#top">Scribe<span>Assist</span></a>
+    <nav class="site-nav">
+      <a href="#how">How it works</a>
+      <a href="#tool">Try it</a>
+      <a href="#safety">Safety</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>From shorthand notes to a draft letter, in seconds.</h1>
+        <p class="lede">ScribeAssist takes the bullet points a doctor jots down on a ward round or in clinic and turns them into a structured first draft — a discharge summary, referral, or clinic letter — ready for a doctor to check, edit, and sign.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#tool">Try the demo</a>
+          <a class="btn btn-secondary" href="#safety">How it's kept safe</a>
+        </div>
+      </div>
+
+      <div class="transform-card" aria-hidden="false">
+        <div class="transform-head">
+          <span>Example — discharge summary</span>
+        </div>
+        <div class="transform-body">
+          <div class="transform-panel input">
+            <ul>
+              <li>68F, admitted with CAP, started IV co-amoxiclav</li>
+              <li>Afebrile since day 2, CRP falling</li>
+              <li>Stepped down to oral abx day 3</li>
+              <li>Mobilising independently, sats 97% on air</li>
+              <li>Plan: discharge today, GP review in 1 week</li>
+            </ul>
+          </div>
+          <div class="transform-arrow" aria-hidden="true">→</div>
+          <div class="transform-panel output"><span id="hero-typed"></span><span id="hero-cursor" class="typed">&nbsp;</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem" id="problem">
+    <div class="wrap measure problem-body">
+      <h2>Documentation eats into time with patients</h2>
+      <p>Every ward round, clinic, and discharge ends with the same task: turning what happened into a letter. The facts are usually already written down somewhere — in the notes, in bullet points scrawled between patients — but shaping them into a properly structured letter still takes real time, out of a day that's already full.</p>
+      <p>ScribeAssist is an attempt to close that gap. Give it the bullet points, and it produces a structured first draft in the right format, so a doctor's time goes into checking and refining rather than starting from a blank page.</p>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="section-lede measure">Three steps, and a doctor stays in control at every one of them.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Jot the findings</h3>
+          <p>Write the clinical findings as bullet points, the way you'd already note them during a ward round or clinic.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>ScribeAssist drafts the letter</h3>
+          <p>It structures those points into the right format for a discharge summary, referral, or clinic letter — flagging anything it wasn't told, rather than guessing.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>The doctor reviews and signs</h3>
+          <p>Every draft is checked, edited, and approved by a doctor before it goes anywhere near a patient record. ScribeAssist drafts; it doesn't decide.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tool-section" id="tool">
+    <div class="wrap">
+      <h2>Try it</h2>
+      <p class="section-lede measure">This runs for real. Pick a letter type, enter a few fictional findings, and generate a draft.</p>
+
+      <div class="tool-grid">
+        <form id="generate-form" novalidate>
+
+          <div class="letter-type-tabs" role="tablist" aria-label="Letter type">
+            <button type="button" class="active" data-type="discharge" role="tab" aria-selected="true">Discharge summary</button>
+            <button type="button" data-type="referral" role="tab" aria-selected="false">Referral letter</button>
+            <button type="button" data-type="clinic" role="tab" aria-selected="false">Clinic letter</button>
+          </div>
+
+          <div class="field">
+            <label for="patient-info">Patient details (optional)</label>
+            <input type="text" id="patient-info" placeholder="e.g. 68-year-old woman — fictional details only" />
+          </div>
+
+          <div class="field">
+            <label for="recipient">Recipient / context (optional)</label>
+            <input type="text" id="recipient" placeholder="e.g. patient's GP practice" />
+          </div>
+
+          <div class="field">
+            <label for="bullets">Clinical findings</label>
+            <textarea id="bullets" placeholder="68F, admitted with CAP, started IV co-amoxiclav
+Afebrile since day 2, CRP falling
+Stepped down to oral abx day 3
+Mobilising independently, sats 97% on air
+Plan: discharge today, GP review in 1 week"></textarea>
+          </div>
+
+          <div class="mode-toggle">
+            <input type="checkbox" id="ai-mode-toggle" />
+            <label for="ai-mode-toggle" style="margin:0;">Use Claude for this draft (AI mode)</label>
+          </div>
+
+          <div class="field api-key-field" id="api-key-wrap">
+            <label for="api-key">Claude API key</label>
+            <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" />
+            <p class="hint">Stays in your browser and is sent straight to Anthropic to generate this one draft — ScribeAssist's own server never stores it. Get a key at <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>. Leave this off to use the built-in template mode instead.</p>
+          </div>
+
+          <div class="generate-row">
+            <button type="submit" class="btn btn-primary" id="generate-btn">Generate draft</button>
+            <span id="generating-status" class="hint" aria-live="polite"></span>
+          </div>
+
+          <div class="error-msg" id="error-msg" role="alert"></div>
+        </form>
+
+        <div>
+          <div class="letterhead">
+            <div class="letterhead-bar">
+              <span>Draft output</span>
+              <span class="mode-pill" id="mode-pill">Template mode</span>
+            </div>
+            <div class="letterhead-body empty" id="letter-output">Your draft will appear here once you generate one.</div>
+            <div class="letterhead-foot">
+              <button type="button" class="icon-btn" id="copy-btn">Copy</button>
+              <button type="button" class="icon-btn" id="clear-btn">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="safety-section" id="safety">
+    <div class="wrap measure">
+      <h2>What this is — and isn't</h2>
+      <p class="section-lede">Clinical documentation is a reasonable place for AI to help, but only within clear limits. These are the ones ScribeAssist works inside of.</p>
+      <div class="safety-list">
+        <div class="safety-item">
+          <div class="bar"></div>
+          <div>
+            <h3>A drafting aid, not a decision-maker</h3>
+            <p>Every draft must be reviewed, edited, and approved by a qualified clinician before it's used for a real patient. ScribeAssist never sends, files, or submits anything on its own.</p>
+          </div>
+        </div>
+        <div class="safety-item">
+          <div class="bar"></div>
+          <div>
+            <h3>No real patient data</h3>
+            <p>This demo isn't connected to any clinical system. It should only ever be given fictional or fully anonymised details — nothing that could identify a real person.</p>
+          </div>
+        </div>
+        <div class="safety-item">
+          <div class="bar"></div>
+          <div>
+            <h3>It says what it doesn't know</h3>
+            <p>In AI mode, the model is instructed to mark missing information explicitly — for example <code>[not documented]</code> — rather than invent findings. It's still a prototype built on a general-purpose model, not a clinically validated product.</p>
+          </div>
+        </div>
+        <div class="safety-item">
+          <div class="bar"></div>
+          <div>
+            <h3>AI mode uses your own key</h3>
+            <p>Turning on AI mode sends your Claude API key, with your typed findings, directly to Anthropic for that one request. ScribeAssist's server relays the request but never stores the key or the letter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap measure">
+      <h2>About this project</h2>
+      <div class="about-grid">
+        <div class="about-mark" aria-hidden="true">S</div>
+        <div class="about-body">
+          <p>I'm Sri, a student in the UK working toward a medicine application, with neurosurgery as the long-term goal.</p>
+          <p>Documentation is unglamorous compared with, say, diagnosis or imaging — but it's where a large share of a doctor's actual day goes, and it's a problem AI can help with without touching diagnosis or treatment decisions. That combination is what made it worth building first.</p>
+          <p>It sits alongside two other projects I've been working on in parallel: a systematic review of surgical timing in acute traumatic spinal cord injury, and an independent comparison of machine-learning approaches to motor decoding in brain–computer interfaces for people with chronic spinal cord injury.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
+    <span>ScribeAssist — a student-built prototype, not a certified medical device.</span>
+    <span>Built by Sri, 2026.</span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
