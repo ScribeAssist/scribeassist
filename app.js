@@ -192,9 +192,9 @@
   // ---------------------------------------------------------------
   var WEBLLM_URL = 'https://esm.run/@mlc-ai/web-llm';
   var WEBLLM_MODEL_PREFERENCE = [
-    'Llama-3.2-3B-Instruct-q4f16_1-MLC',
-    'Qwen2.5-3B-Instruct-q4f16_1-MLC',
-    'Llama-3.2-1B-Instruct-q4f16_1-MLC'
+    'Llama-3.2-1B-Instruct-q4f16_1-MLC',
+    'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
+    'Llama-3.2-3B-Instruct-q4f16_1-MLC'
   ];
   var webllmEnginePromise = null;
 
@@ -241,7 +241,13 @@
     return webllmEnginePromise;
   }
 
-  async function generateWithWebllm(type, patientInfo, recipient, bullets) {
+  function isModelDroppedError(err) {
+    return /model not loaded|reload|device.*lost|context lost|out of memory/i.test(
+      (err && err.message) || ''
+    );
+  }
+
+  async function runWebllmOnce(type, patientInfo, recipient, bullets) {
     var engine = await getWebllmEngine();
     progressWrap.hidden = true;
     statusEl.textContent = 'Writing the draft…';
@@ -254,6 +260,26 @@
       max_tokens: 900
     });
     return reply.choices[0].message.content;
+  }
+
+  async function generateWithWebllm(type, patientInfo, recipient, bullets) {
+    try {
+      return await runWebllmOnce(type, patientInfo, recipient, bullets);
+    } catch (err) {
+      if (!isModelDroppedError(err)) throw err;
+      // The browser dropped the model (usually low memory). Reload once.
+      webllmEnginePromise = null;
+      statusEl.textContent = 'The model stopped, reloading it…';
+      try {
+        return await runWebllmOnce(type, patientInfo, recipient, bullets);
+      } catch (err2) {
+        webllmEnginePromise = null;
+        throw new Error(
+          'The on-device model stopped, which usually means this device ran out of memory. ' +
+          'Close other tabs and apps, refresh the page and try again, or choose Template or Claude instead.'
+        );
+      }
+    }
   }
 
   // ---------------------------------------------------------------

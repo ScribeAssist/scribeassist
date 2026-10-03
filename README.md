@@ -1,4 +1,4 @@
-# ScribeAssist
+# Clinidraft
 
 A prototype tool that turns a clinician's bullet-point findings into a structured first draft of a discharge summary, referral letter or clinic letter. A doctor always reviews and signs the draft.
 

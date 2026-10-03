@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ScribeAssist — draft clinical letters from your notes</title>
+<title>Clinidraft — draft clinical letters from your notes</title>
 <meta name="description" content="A prototype tool that turns a clinician's bullet-point findings into a structured first draft of a discharge summary, referral, or clinic letter." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
 
 <header class="site-header">
   <div class="wrap">
-    <a class="wordmark" href="#top">Scribe<span>Assist</span></a>
+    <a class="wordmark" href="#top">Clini<span>draft</span></a>
     <nav class="site-nav">
       <a href="#how">How it works</a>
       <a href="#tool">Try it</a>
@@ -30,7 +30,7 @@
     <div class="wrap hero-grid">
       <div>
         <h1>From shorthand notes to a draft letter, in seconds.</h1>
-        <p class="lede">ScribeAssist takes the bullet points a doctor jots down on a ward round or in clinic and turns them into a structured first draft — a discharge summary, referral, or clinic letter — ready for a doctor to check, edit, and sign.</p>
+        <p class="lede">Clinidraft takes the bullet points a doctor jots down on a ward round or in clinic and turns them into a structured first draft — a discharge summary, referral, or clinic letter — ready for a doctor to check, edit, and sign.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#tool">Try the demo</a>
           <a class="btn btn-secondary" href="#safety">How it's kept safe</a>
@@ -62,7 +62,7 @@
     <div class="wrap measure problem-body">
       <h2>Documentation eats into time with patients</h2>
       <p>Every ward round, clinic, and discharge ends with the same task: turning what happened into a letter. The facts are usually already written down somewhere — in the notes, in bullet points scrawled between patients — but shaping them into a properly structured letter still takes real time, out of a day that's already full.</p>
-      <p>ScribeAssist is an attempt to close that gap. Give it the bullet points, and it produces a structured first draft in the right format, so a doctor's time goes into checking and refining rather than starting from a blank page.</p>
+      <p>Clinidraft is an attempt to close that gap. Give it the bullet points, and it produces a structured first draft in the right format, so a doctor's time goes into checking and refining rather than starting from a blank page.</p>
     </div>
   </section>
 
@@ -78,13 +78,13 @@
         </div>
         <div class="step">
           <div class="step-num">02</div>
-          <h3>ScribeAssist drafts the letter</h3>
+          <h3>Clinidraft drafts the letter</h3>
           <p>It structures those points into the right format for a discharge summary, referral, or clinic letter — flagging anything it wasn't told, rather than guessing.</p>
         </div>
         <div class="step">
           <div class="step-num">03</div>
           <h3>The doctor reviews and signs</h3>
-          <p>Every draft is checked, edited, and approved by a doctor before it goes anywhere near a patient record. ScribeAssist drafts; it doesn't decide.</p>
+          <p>Every draft is checked, edited, and approved by a doctor before it goes anywhere near a patient record. Clinidraft drafts; it doesn't decide.</p>
         </div>
       </div>
     </div>
@@ -133,7 +133,7 @@ Plan: discharge today, GP review in 1 week"></textarea>
           </div>
 
           <div class="hint mode-note" id="webllm-note" hidden>
-            Runs a small AI model inside your browser, so nothing you type leaves your device. The first time, it downloads roughly 1 to 2 GB, so use Wi-Fi. It needs a recent browser with WebGPU (current Chrome or Edge, or Safari on recent iPads and Macs). Small models make more mistakes than Claude, so check every line.
+            Runs a small AI model inside your browser, so nothing you type leaves your device. The first time, it downloads roughly 1 GB, so use Wi-Fi. It needs a recent browser with WebGPU (current Chrome or Edge, or Safari on recent iPads and Macs). Small models make more mistakes than Claude, so check every line.
           </div>
           <div class="progress" id="webllm-progress" hidden>
             <div class="progress-bar" id="webllm-bar"></div>
@@ -173,13 +173,13 @@ Plan: discharge today, GP review in 1 week"></textarea>
   <section class="safety-section" id="safety">
     <div class="wrap measure">
       <h2>What this is — and isn't</h2>
-      <p class="section-lede">Clinical documentation is a reasonable place for AI to help, but only within clear limits. These are the ones ScribeAssist works inside of.</p>
+      <p class="section-lede">Clinical documentation is a reasonable place for AI to help, but only within clear limits. These are the ones Clinidraft works inside of.</p>
       <div class="safety-list">
         <div class="safety-item">
           <div class="bar"></div>
           <div>
             <h3>A drafting aid, not a decision-maker</h3>
-            <p>Every draft must be reviewed, edited, and approved by a qualified clinician before it's used for a real patient. ScribeAssist never sends, files, or submits anything on its own.</p>
+            <p>Every draft must be reviewed, edited, and approved by a qualified clinician before it's used for a real patient. Clinidraft never sends, files, or submits anything on its own.</p>
           </div>
         </div>
         <div class="safety-item">
@@ -200,7 +200,7 @@ Plan: discharge today, GP review in 1 week"></textarea>
           <div class="bar"></div>
           <div>
             <h3>AI mode uses your own key</h3>
-            <p>ScribeAssist has no server of its own, so this site stores and logs nothing. On-device AI keeps your text in your browser. Claude mode sends your API key and typed findings directly from your browser to Anthropic.</p>
+            <p>Clinidraft has no server of its own, so this site stores and logs nothing. On-device AI keeps your text in your browser. Claude mode sends your API key and typed findings directly from your browser to Anthropic.</p>
           </div>
         </div>
       </div>
@@ -225,7 +225,7 @@ Plan: discharge today, GP review in 1 week"></textarea>
 
 <footer class="site-footer">
   <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
-    <span>ScribeAssist — a student-built prototype, not a certified medical device.</span>
+    <span>Clinidraft — a student-built prototype, not a certified medical device.</span>
     <span>Built by Suriya, 2026.</span>
   </div>
 </footer>
